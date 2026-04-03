@@ -97,7 +97,7 @@ def display_users():
                                    FROM country
                                    LIMIT 20
                                    """)
-    return render_template('display_countries.html', countries = country_list)
+    return render_template('display_countries.html', country = country_list)
 
 
 # these two lines of code should always be the last in the file
