@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Add City</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-5">Add a City</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mt-3">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="mt-4">
+            <div class="form-group">
+                <label for="name">City Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="countrycode">Country</label>
+                <select class="form-control" id="countrycode" name="countrycode" required>
+                    {% for country in countries %}
+                    <option value="{{ country.code }}">{{ country.name }} ({{ country.code }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="district">District</label>
+                <input type="text" class="form-control" id="district" name="district" required>
+            </div>
+
+            <div class="form-group">
+                <label for="population">Population</label>
+                <input type="number" class="form-control" id="population" name="population" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add City</button>
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">Back Home</a>
+        </form>
+    </div>
+</body>
+</html>

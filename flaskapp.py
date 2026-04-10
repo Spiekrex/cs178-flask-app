@@ -8,98 +8,95 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from dbCode import *
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key' # this is an artifact for using flash displays; 
-                                   # it is required, but you can leave this alone
+app.secret_key = 'your_secret_key'
 
-def get_connection():
-    """Opens and returns a connection to the RDS MySQL database."""
-    return pymysql.connect(
-        host=creds.host,
-        user=creds.user,
-        password=creds.password,
-        db=creds.db
-    )
-
-def execute_query(query, args=()):
-    """
-    Runs a SQL query and returns all result rows as a list of tuples.
-    Always use parameterized queries (args) when inserting user input —
-    never build SQL strings with f-strings or concatenation.
-    """
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute(query, args)
-    rows = cursor.fetchall()
-    conn.close()
-    return rows
-
-def display_html(rows):
-    """
-    Converts query result rows into a simple HTML table string.
-    Flask routes can return this directly as a response.
-    """
-    html = "<table border='1'>"
-    for row in rows:
-        html += "<tr>"
-        for col in row:
-            html += f"<td>{col}</td>"
-        html += "</tr>"
-    html += "</table>"
-    return html
 
 @app.route('/')
 def home():
     return render_template('home.html')
 
-@app.route('/add-user', methods=['GET', 'POST'])
-def add_user():
-    if request.method == 'POST':
-        # Extract form data
-        f_name = request.form['f_name']
-        l_name = request.form['l_name']
-        genre = request.form['genre']
-        
-        # Process the data (e.g., add it to a database)
-        # For now, let's just print it to the console
-        print("Name:", f_name + " "+ l_name, ":", "Favorite Genre:", genre)
-        
-        flash('User added successfully! Huzzah!', 'success')  # 'success' is a category; makes a green banner at the top
-        # Redirect to home page or another page upon successful submission
-        return redirect(url_for('home'))
-    else:
-        # Render the form page if the request method is GET
-        return render_template('add_user.html')
-
-@app.route('/delete-user',methods=['GET', 'POST'])
-def delete_user():
-    if request.method == 'POST':
-        # Extract form data
-        name = request.form['name']
-        
-        # Process the data (e.g., add it to a database)
-        # For now, let's just print it to the console
-        print("Name to delete:", name)
-        
-        flash('User deleted successfully! Hoorah!', 'warning') 
-        # Redirect to home page or another page upon successful submission
-        return redirect(url_for('home'))
-    else:
-        # Render the form page if the request method is GET
-        return render_template('delete_user.html')
-
 
 @app.route('/display-countries')
-def display_users():
-    # hard code a value to the users_list;
-    # note that this could have been a result from an SQL query :) 
-    country_list = execute_query("""
-                                   SELECT name
-                                   FROM country
-                                   LIMIT 20
-                                   """)
-    return render_template('display_countries.html', country = country_list)
+def display_countries():
+    country_list = get_countries()
+    return render_template('display_countries.html', country=country_list)
 
 
-# these two lines of code should always be the last in the file
+# -------------------------
+# CREATE
+# -------------------------
+@app.route('/add-city', methods=['GET', 'POST'])
+def add_city_route():
+    if request.method == 'POST':
+        name = request.form['name']
+        countrycode = request.form['countrycode']
+        district = request.form['district']
+        population = request.form['population']
+
+        try:
+            add_city(name, countrycode, district, population)
+            flash('City added successfully!', 'success')
+            return redirect(url_for('biggest_cities'))
+        except Exception as e:
+            flash(f'Error adding city: {e}', 'danger')
+            return redirect(url_for('add_city_route'))
+
+    countries = get_country_codes()
+    return render_template('add_city.html', countries=countries)
+
+
+# -------------------------
+# READ
+# -------------------------
+@app.route('/biggest-cities')
+def biggest_cities():
+    cities = get_biggest_cities()
+    return render_template('biggest_cities.html', cities=cities)
+
+
+# -------------------------
+# UPDATE
+# -------------------------
+@app.route('/update-city/<int:city_id>', methods=['GET', 'POST'])
+def update_city_route(city_id):
+    city = get_city_by_id(city_id)
+
+    if not city:
+        flash('City not found.', 'warning')
+        return redirect(url_for('biggest_cities'))
+
+    if request.method == 'POST':
+        name = request.form['name']
+        district = request.form['district']
+        population = request.form['population']
+
+        try:
+            update_city(city_id, name, district, population)
+            flash('City updated successfully!', 'success')
+            return redirect(url_for('biggest_cities'))
+        except Exception as e:
+            flash(f'Error updating city: {e}', 'danger')
+            return redirect(url_for('update_city_route', city_id=city_id))
+
+    return render_template('update_city.html', city=city)
+
+
+# -------------------------
+# DELETE
+# -------------------------
+@app.route('/delete-city/<int:city_id>', methods=['POST'])
+def delete_city_route(city_id):
+    try:
+        deleted = delete_city(city_id)
+        if deleted:
+            flash('City deleted successfully!', 'warning')
+        else:
+            flash('City not found.', 'warning')
+    except Exception as e:
+        flash(f'Error deleting city: {e}', 'danger')
+
+    return redirect(url_for('biggest_cities'))
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)

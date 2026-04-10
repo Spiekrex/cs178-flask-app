@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Update City</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-5">Update City</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mt-3">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="mt-4">
+            <div class="form-group">
+                <label for="name">City Name</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ city.name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="district">District</label>
+                <input type="text" class="form-control" id="district" name="district" value="{{ city.district }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="population">Population</label>
+                <input type="number" class="form-control" id="population" name="population" value="{{ city.population }}" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Update City</button>
+            <a href="{{ url_for('biggest_cities') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>
