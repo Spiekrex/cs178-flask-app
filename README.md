@@ -1,4 +1,4 @@
-# [Your Project Name Here]
+# Biggest Cities by percentage
 
 **CS178: Cloud and Database Systems — Project #1**
 **Author:** [Rex Spieker]
@@ -8,16 +8,14 @@
 
 ## Overview
 
-<!-- Describe your project in 2-4 sentences. What does it do? Who is it for? What problem does it solve? -->
-
+This project shows the cities that have the highest percent of their countries population, ordered by percent. I thought it would be interesting to see what cities are the highest amount of their countries population. 
 ---
 
 ## Technologies Used
 
 - **Flask** — Python web framework
 - **AWS EC2** — hosts the running Flask application
-- **AWS RDS (MySQL)** — relational database for [describe what you stored]
-- **AWS DynamoDB** — non-relational database for [describe what you stored]
+- **AWS RDS (MySQL)** — relational database for cities and their percentage of country population
 - **GitHub Actions** — auto-deploys code from GitHub to EC2 on push
 
 ---
@@ -70,7 +68,7 @@ ProjectOne/
 The app is deployed on an AWS EC2 instance. To view the live version:
 
 ```
-http://[your-ec2-public-ip]:8080
+http://127.0.0.1:8080
 ```
 
 _(Note: the EC2 instance may not be running after project submission.)_
@@ -85,10 +83,10 @@ Create a file called `creds.py` in the project root with the following format (s
 
 ```python
 # creds.py — do not commit this file
-host = "your-rds-endpoint"
+host = "cs178-chinook.cn9nbw41gsla.us-east-1.rds.amazonaws.com"
 user = "admin"
-password = "your-password"
-db = "your-database-name"
+password = "I<3Cloud!"
+db = "world"
 ```
 
 ---
@@ -97,14 +95,17 @@ db = "your-database-name"
 
 ### SQL (MySQL on RDS)
 
-<!-- Briefly describe your relational database schema. What tables do you have? What are the key relationships? -->
+The relational database for this project uses the world database schema hosted on MySQL in Amazon RDS.
 
-**Example:**
+country stores information about countries such as country code, name, continent, and total population. Primary key is code
+city stores information about cities such as city name, district, population, and the country the city belongs to. Primary key is id
+city.countrycode is a foreign key that links each city to country.code
+
 
 - `[TableName]` — stores [description]; primary key is `[key]`
 - `[TableName]` — stores [description]; foreign key links to `[other table]`
 
-The JOIN query used in this project: <!-- describe it in plain English -->
+The JOIN query used in this project: Combines the city and country tables so the website can display each city along with the country it belongs to
 
 ### DynamoDB
 
@@ -120,19 +121,18 @@ The JOIN query used in this project: <!-- describe it in plain English -->
 
 | Operation | Route      | Description    |
 | --------- | ---------- | -------------- |
-| Create    | `/[route]` | [what it does] |
-| Read      | `/[route]` | [what it does] |
-| Update    | `/[route]` | [what it does] |
-| Delete    | `/[route]` | [what it does] |
+| Create    | `/[add_city]` | [Displays a form and inserts a new city into the MySQL city table] |
+| Read      | `/[biggest_cities]` | [Retrieves cities using a SQL JOIN between city and country and displays the cities with the highest percentage of their country's population] |
+| Update    | `/[update_city]` | [Loads a selected city, displays an edit form, and updates the city in the database] |
+| Delete    | `/[delete-city]` | [Deletes the selected city from the MySQL city table] |
 
 ---
 
 ## Challenges and Insights
 
-<!-- What was the hardest part? What did you learn? Any interesting design decisions? -->
-
+I shouldn't have procrastinated so much, I had to go back and look at the previous labs to recall how to work with SQl and get it working for this lab. I'll definitely start earlier for the next project so I'm not rushing it out like this. I had to decide what I wanted to focus on to try and get the most points possible since I ran out of time to finish everything.
 ---
 
 ## AI Assistance
 
-<!-- List any AI tools you used (e.g., ChatGPT) and briefly describe what you used them for. Per course policy, AI use is allowed but must be cited in code comments and noted here. -->
+I used ChatGPT to help with the styling of the website. I wanted it to look better, but my HTML was not good enough for what I wanted it to look like, so I had ChatGPT help polish the design. I also used it to try and fix my automatic deploying which was being problematic, though I eventually fixed it by simply deleting and reforking the project.
